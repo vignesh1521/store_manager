@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Items</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            margin: 20px;
+        }
+
+        table {
+            width: 80%;
+            margin: auto;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #d6eaff;
+        }
+
+        button {
+            padding: 6px 12px;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .edit-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .save-btn {
+            background-color: #ffc107;
+            color: black;
+        }
+
+        .back {
+            text-align: right;
+            margin-right: 200px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Edit Items</h2>
+    <div class="back"><a href="../menu">Back Home</a></div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Item Name</th>
+                <th>Item Type</th>
+                <th>Quantity</th>
+                <th>Price (₹)</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="itemsTable">
+            <!-- Items will be inserted dynamically here -->
+        </tbody>
+    </table>
+
+    <script>
+        async function fetchItems() {
+            try {
+                const response = await fetch("http://localhost:8000/items");
+                if (!response.ok) {
+                    throw new Error("Failed to fetch items");
+                }
+                const items = await response.json();
+                displayItems(items);
+            } catch (error) {
+                console.error("Error fetching items:", error);
+            }
+        }
+
+        function displayItems(items) {
+            const tableBody = document.getElementById("itemsTable");
+            tableBody.innerHTML = ""; // Clear existing rows
+
+            items.forEach((item, index) => {
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td contenteditable="false">${item.name}</td>
+                    <td contenteditable="false">${item.type}</td>
+                    <td contenteditable="false">${item.quantity}</td>
+                    <td contenteditable="false">${item.price}</td>
+                    <td>
+                        <button class="edit-btn" onclick="editItem(this)">Edit</button>
+                        <button class="edit-btn" onclick="saveItem(this, ${item.item_no})" style="display:none;">Save</button>
+                        <button class="save-btn" id="btn" onclick="window.location.reload()" style="display:none;">Cancel</button>
+
+                    </td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        function editItem(button) {
+            let row = button.parentElement.parentElement;
+            row.style.backgroundColor = "#d7d7d7"
+            let cells = row.querySelectorAll("td[contenteditable]");
+
+            cells.forEach(cell => cell.setAttribute("contenteditable", "true"));
+
+            button.style.display = "none"; // Hide Edit button
+            button.nextElementSibling.style.display = "inline-block"; // Show Save button
+            button.nextElementSibling.nextElementSibling.style.display = "inline-block"
+        }
+
+        async function saveItem(button, id) {
+            let row = button.parentElement.parentElement;
+            let cells = row.querySelectorAll("td[contenteditable]");
+
+            let updatedItem = {
+                id: id,
+                name: cells[0].innerText.toLowerCase(),
+                type: cells[1].innerText.charAt(0).toUpperCase() + cells[1].innerText.slice(1).toLowerCase(),
+                quantity: parseInt(cells[2].innerText),
+                price: parseFloat(cells[3].innerText)
+            };
+
+            try {
+                const response = await fetch(`http://localhost:8000/update/items/${id}`, {
+                    method: "post",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(updatedItem)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText);
+                }
+
+                alert("Item updated successfully!");
+                row.style.backgroundColor = ""
+                // Disable editing again
+                cells.forEach(cell => cell.setAttribute("contenteditable", "false"));
+
+                button.style.display = "none"; // Hide Save button
+                button.nextElementSibling.style.display = "none"; // Show Save button
+
+                button.previousElementSibling.style.display = "inline-block"; // Show Edit button
+
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        window.onload = fetchItems;
+    </script>
+
+</body>
+
+</html>

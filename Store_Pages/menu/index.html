@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu</title>
+</head>
+
+<body>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      background-image: linear-gradient(to right, #ebebeb, #ededed);
+    }
+
+    .menu {
+      text-align: center;
+      margin: 20px 0;
+      font-size: 2rem;
+      padding: 15px;
+      font-weight: bold;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 10px;
+      width: 75%;
+      margin: auto;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      padding: 20px;
+      width: 250px;
+
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-10px);
+    }
+
+    .card img {
+      max-width: 100px;
+      max-height: 100px;
+      margin-bottom: 10px;
+    }
+
+    .card h3 {
+      font-size: 1.5rem;
+      color: #333;
+      margin-bottom: 10px;
+      max-width: 90%;
+      margin: 20px auto;
+    }
+
+    .card p {
+      font-size: 1rem;
+      color: #666;
+      line-height: 1.5;
+    }
+
+
+
+    @media (max-width: 1440px) {
+      .card {
+        padding: 15px;
+      }
+    }
+
+    @media (max-width: 1350px) {
+      .card {
+        padding: 10px;
+      }
+
+      .container {
+        width: 80%;
+      }
+    }
+
+    @media (max-width: 1080px) {
+      .card {
+        padding: 8px;
+      }
+
+      .container {
+        width: 95%;
+      }
+
+      .card img {
+        margin-top: 20px;
+        max-width: 70px;
+        max-height: 70px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .card {
+        padding: 4px;
+        max-width: 230px;
+      }
+
+      .container {
+        padding: 10px;
+        gap: 10px;
+      }
+
+      .card img {
+        margin-top: 20px;
+        max-width: 60px;
+        max-height: 60px;
+      }
+    }
+
+
+
+    @media (max-width: 790px) {
+      .card {
+        padding: 2px;
+        max-width: 210px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .card {
+        padding: 2px;
+        max-width: 190px;
+      }
+
+      .container {
+        padding: 5px;
+        gap: 8px;
+
+      }
+
+      .card img {
+        margin-top: 15px;
+      }
+    }
+
+    @media (max-width: 650px) {
+      .card {
+
+        max-width: 180px;
+      }
+
+      .card img {
+        margin-top: 15px;
+        max-width: 60px;
+        max-height: 60px;
+      }
+
+      .card h3 {
+        font-size: 22px;
+      }
+    }
+
+    @media (max-width: 550px) {
+      .card h3 {
+        font-size: 20px;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .card {
+        padding: 0px;
+        max-width: 190px;
+      }
+
+      .container {
+        padding: 0px;
+        gap: 6px;
+
+      }
+
+      .card img {
+        position: relative;
+        top: 8px;
+        max-width: 50px;
+        max-height: 50px;
+      }
+    }
+
+    @media (max-width: 450px) {
+      .card {
+        max-width: 170px;
+      }
+
+      .container {
+        gap: 5px;
+
+      }
+
+      .card img {
+        max-width: 40px;
+        max-height: 40px;
+      }
+
+      .card h3 {
+        font-size: 18px;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .card {
+        max-width: 150px;
+      }
+
+      .container {
+        gap: 3px;
+
+      }
+
+      .card img {
+        top: 10px;
+        max-width: 35px;
+        max-height: 35px;
+      }
+
+      .card h3 {
+        font-size: 16px;
+      }
+    }
+  </style>
+  <div class="menu">Store Manager</div>
+  <div class="container">
+
+    <div onclick="location='/items'" class="card">
+      <a href="#"></a>
+      <img
+        src="data:image/png;base64,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"
+        alt="Bread">
+      <h3>View Items</h3>
+      <p>Manage your account with ease,
+        update your profile details.</p>
+    </div>
+
+    <div onclick="location='/add-item/'" class="card">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdzMz_nAHVVZJehb5Esj3q58n0F7hRusHJrw&s"
+        alt="Pastries">
+      <h3>Add Items</h3>
+      <p>Start creating a new resume,
+        customize it to showcase your skills.</p>
+    </div>
+    <div onclick="location='/purchase-item/'" class="card">
+      <img
+        src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAeFBMVEX///8AAAB9fX2xsbFHR0fBwcEPDw/v7++ZmZnz8/O4uLj7+/vDw8Pi4uLl5eXJycmTk5PV1dXPz88YGBje3t6hoaGoqKiJiYk+Pj7T09MbGxuEhIQkJCRRUVFEREQzMzNmZmZqamosLCxaWlp0dHReXl5UVFQxMTFHI1BwAAAKK0lEQVR4nO1d6VrjOgwlLC10AwpdKFvL+v5veOEOMNFJJMuJZIdMz9/4cyxvko5l+eCgE1i+FcV6NcvdDDdcFl84zd0SJ1wXPzjM3RYfDP5KWLzkbowHjooy+jiK90TCPo5iAejfKKKE/RvFh4qIfRvFi4qEfRvFs6qEfRvFZf9FrJmnexF/HfYi9gF7EfuAvYh9wF7EPmDxK0U82W1q2l2P2pIdF3H4qBaPRadFHLaX7wOr3GIIODaRsJjnloPFuY2AxTq3ICxejCQshrkl4WA0SYviPLckHO7DbddhklsSDlsrCS9zS8LhKNx2HXILwsNIwA4rxImJgHe5xZBgMU8HZ7mlEDFtvdtcdVvAD4xvTpQ4r/Oerjqr7Rugzk7v+BSNw6zvI1gn4H4EfxNqR7DvAnZfTURgP4K/Hf/mJtOnEayzZDxHcH64Hoh4ejHm9mo4Y8dNZqxiVu7Hhr88STuCTxoBi2JjKOJryhE82OkELIqt3T8rpzGeIzjVClgUU7OfphzBg1O9hBdmP4XYRF81EUE4PJj9dJVuBOMIXLOuJurQW9GvOHFqYMezl9aGu6kWw27e2v329rvOO39T7UovoSVLO/lj1tjtXjzmEYNoOqGmJ6NLS0OJRwRFPUrSIHtcP2sl7HSEhIjhOcdIUydgk7uhDgBl0sPrghBZcZS7PQ6gEu5yN8cB1Ege5G6OA8D3uM7dHnvcUAmXudtjjzGV8DV3exwAPFXu5jgATqE7G8fTHJdUwkXu9jiASnifuzkOAJ4jjcOTFHAb8iZ3e+wBjOr9YaewGhlMqkHRbbS3Qszimr3Q2jE3ixh1Q1unzuYChSvarsW73AIE0ZYiO8wtQBBtV+IotwBBbFtK2P2F2Ho3VR6E50NrhizmgCoLWrOcVre1vHDVVkCkMjoHg9MGs+taPjA4MYIb17vMDsUtxFQZnPrBIWN2cp9K+GhRJZVwa1FlC4CCNjl97xanCEaWSQQFcIqZyX3wWE2CHbrFKVLWwehONJXw2abShgDmyCieAwImbSptCCAdjKJ7u8Qp+jC417TWrMlxaVPMWHha7bFVtQ3g1dk7l6nRBF6nYY2W99ksQlfNlF4eBDjpfxD6P61XsUWPF58k3Vpn+A//j1Z8VXSc36k05RTDavZHaz0oZvSPHRZ29cD4MIwsAFMp1OySWn4K1l26gBEM2fGLDok0d9cRU3ocUzF1AiwjfOJcFkrtBKomwxLy9mgzTKO0KKcYaAjlyQO5ZihJInvsns74bRHRELqlB3wRWrFsEQKhYhotCfexZC1ALfVAohJasawx1qSsbaAdZHCW93W6827FsrDCxd0RGmGcJBsYLrEs3dPl6zag4UQzCG5PGEeexwQMUyNP1ohAqYtlozaDaMQEDMOiFe0D6nvKFD292GedpwcsQlEVgYsjzjy6PYr+HixZ88sD1JwQOxuaIt5dpLuS2HFgWJ00kUICmIRSs2G8RVOMdpxoLMGBu/mlqZiAYXqfStzzHvW1xjo40aASiq4ZbbZINVD6U+oMcFIdMp690T9IRSkhJm0JoMQlkwaIBofUihEUCVVcW6EkbEqSmt3Rog5kEegAyaCmu5LkiYC3IO0etKTdxWT2F5Lqgn1dXVKypVOQtkA3CyXn6pLUpJEMPCDeXRLx6v8B/S2sLrpipXmR4vBEf+wDKl/YlKhJI+26tMq3xlKIoD+RVC4tKRg1lMMQOi3NIab++JWaH4KlUmgLprncote51DoQ9j11jWmCCUA9C3bTjhTk6QYwafiRgZW9bS6EDMopCguRMgL8FgmbLu+1g/5xuyio9l+oYuG7Qq04gUe0S5cDUPugWlPlSFkO9tz28Ygc1JyilkGjBix/uAzL0PGxPaoFeC4IfDnWqKEmDe9zprs4r+UUtW4fNcX4OQH/dUxro+ZkaTl2wdL78LyhQkkDz3vzal6dTme26bQYO/m8ecQyIFMXW44aNRyFBhsIa9JEnQu1hPZ8i2pObqxhSrBaDvSwa3YprW2ho7K1Jg2l803CgnnQNm25YlSVc+GMoFS4yjzCgnkoOUWq8jkbna5D1rjzCAvmoY33IEwv6zPsyqXYHTcy1qUltL52eZryMbflacprOboMXXjEMqiEfOP/MnMDodNLrjs70PExZ+2g5ry+La1jcVZ9j/WGP8FPwSMK/xPCQ2arx83dS+h84ex0vdlsJSWeOrFD+oBh+sMEyTnoD/0DhtN36S7xpEmfJMf/HI/CKyyYR+rNm/4uSbIqejDtbAc7hgXz8LhbxSNH0ri0hjBc0vX92ReSOjMxsVh2eE+4EPPc0fWNEaTwDAvmAcSQeYBZGZT6SvVuIBBId8eOoL9ypPMpDJ6mboZkCamzZQNJ9qBQrmwg6Z7vzJUNxJlHLCNTNpCEDyFHvG5iiYTPXt2EW+OApE+uZ5Ew6UPIZi9wxyBplt+YlzGsEL6OaopdeglTJ2p+CzfJFq4Gfi2WEa/UtMezWxiUhOnkKA1G8z49ALnHHo4YDz9gcopx9lFR1xbedPn6RcC9b5et2KLz1cOfQKnN+nbSlRzw4yXkOH1syvlNMafvSyeeY6j1pJocL0yrT5QWxXF2GedM1va76AMGjvxJxq/FNauIPawdvrMVDbKYM18QnaiYIEn50Vf38AsWAbpmq67oUq4oJUFDEHx3T7uE6t4ip8iz3yh4Yd2WOla8MZHDAlC5+apNok5LIHK8caNyDzX0WM1b5DVIn91XSZkqzlKUnrS/SABdsxT0kfaRkNSZYZfhJv1BMKJIm7g/9TOhlSPEwcXlcHhzUWnYNlBRVRXej6bD2UnVmHCPviKo2CA/oVEVHRKoCctvvlXfDDsx7Wu2OElH/KdA18MzL1cln3ANNfmIwmDHjOAnDoVvFUBMADnlxWPKpK/ZUiuEBqFDw+Tc0WA30O6A6ZB0IYrDRAdRjigCXUEP6qGvUj4TKt8vpIFv8i5/Kpald9RTpmiWr2SBAhD5JCohzmgaBpnwGB+nDzAWMXn0aIwzRo3r02aYg8oADiqEZ0ZkpEOFQGepezhyGbRd0Lm056OyCtLZAFMlqWUK/AUZJlikcqIVuGtAWQEI00/KZdwKDQOHNjC3aGFCV+B7YUk1PnqtpQmEhmZAT0PSkpJGHOO7fU6y1AONrWL3tWMOK/RUoKYFlv925if4Ia3lXcOz7Ubz+VGVcglFZld5ts3F+Xx+WnUbE7OmlR7mEGyXNuQhcbCJ+nHLMBWlDc1JTkUpn35U+AO6QEfPVBFtGqbJOnYdrqbIQuyHqfhCGbasCapOcqMLoZinyo5HnVhFuvhngmDfax26cZAUThbCDgi8aa3350LvueZ7CU0cxRiX/ExUPjkPgYVTlUjeaMdWdJ836GTImCSv0Qd+3MaV+SW7D0xqDh4em9iQ47o5f9iJ4Kg5zLDGcT7jJaW53xedkO8T4/PFy/rqM1TrZTFvtWxmo9Xz06AYPL2tRk02mP8AP5d9n4ocLkgAAAAASUVORK5CYII="
+        alt="Cakes">
+      <h3>Purchase Items</h3>
+      <p>View all your saved resumes,
+        keep them updated regularly.</p>
+    </div>
+    <div onclick="location='/edit'" class="card">
+      <img src="data:image/png;base64,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"
+        alt="Cookies">
+      <h3>Edit Items</h3>
+      <p>Recover what’s gone,
+        and restore when needed.</p>
+    </div>
+    <div onclick="location='/delete'" class="card">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjRo4aquBwDzGE4IrsLcD111SY8eSE9HGdWA&s"
+        alt="Cookies">
+      <h3>Delete Items</h3>
+      <p>Securely log out of your session,
+        ensure your data is safe</p>
+    </div>
+  </div>
+</body>
+</html>

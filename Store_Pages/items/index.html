@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Items</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background:linear-gradient(to right, #ebebeb, #ededed);
+            text-align: center;
+            margin: 20px;
+        }
+        table {
+            width: 80%;
+            margin: auto;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        td{
+            padding: 15px;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #d6eaff;
+        }
+        .back{
+            text-align: right;
+            margin-right: 200px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Store Items</h2>
+    <div class="back"><a href="../menu">Back Home</a></div>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Item Name</th>
+                <th>Item Type</th>
+                <th>Quantity</th>
+                <th>Price (₹)</th>
+            </tr>
+        </thead>
+        <tbody id="itemsTable">
+            <!-- Items will be inserted dynamically here -->
+        </tbody>
+    </table>
+
+    <script>
+        async function fetchItems() {
+            try {
+                const response = await fetch("http://localhost:8000/items");
+                if (!response.ok) {
+                    throw new Error("Failed to fetch items");
+                }
+                const items = await response.json();
+                displayItems(items);
+            } catch (error) {
+                console.error("Error fetching items:", error);
+            }
+        }
+
+        function displayItems(items) {
+            const tableBody = document.getElementById("itemsTable");
+            tableBody.innerHTML = ""; // Clear existing rows
+
+            items.forEach((item,index) => {
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+                    <td>${index+1}</td>
+                    <td>${item.name}</td>
+                    <td>${item.type}</td>
+                    <td>${item.quantity}</td>
+                    <td>${item.price}</td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        window.onload = fetchItems;
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Items</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #ebebeb, #ededed);
+            text-align: center;
+            margin: 20px;
+        }
+
+        table {
+            width: 80%;
+            margin: auto;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #d6eaff;
+        }
+
+        .back {
+            text-align: right;
+            margin-right: 50px;
+            margin-bottom: 20px;
+        }
+
+        .cart {
+            width: 80%;
+            margin: auto;
+            margin-top: 20px;
+            background: white;
+            padding: 15px;
+            box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            flex-basis: 450px;
+        }
+
+        .cart h2 {
+            margin-bottom: 10px;
+        }
+
+        .cart-items {
+            list-style: none;
+            padding: 0;
+        }
+
+        .cart-items li {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .remove-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .add-cart-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .add-cart-btn:hover {
+            background: #218838;
+        }
+
+        .checkout-btn {
+            background: green;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .con {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Store Items</h2>
+    <div class="back"><a href="../menu">Back Home</a></div>
+    <div class="con">
+
+        <!-- Cart Section -->
+        <div class="cart">
+            <h2>Your Cart</h2>
+            <ul class="cart-items" id="cartItems">
+                <li>No items in cart</li>
+            </ul>
+            <h3>Total: ₹<span id="cartTotal">0.00</span></h3>
+            <button class="checkout-btn" onclick="checkout()">Checkout</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Item Name</th>
+                    <th>Item Type</th>
+                    <th>Quantity</th>
+                    <th>Price (₹)</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="itemsTable">
+                <!-- Items will be inserted dynamically here -->
+            </tbody>
+        </table>
+
+
+    </div>
+    <script>
+        let cart = [];
+
+        async function fetchItems() {
+            try {
+                const response = await fetch("http://localhost:8000/items");
+                if (!response.ok) {
+                    throw new Error("Failed to fetch items");
+                }
+                const items = await response.json();
+                displayItems(items);
+            } catch (error) {
+                console.error("Error fetching items:", error);
+            }
+        }
+
+        function displayItems(items) {
+            const tableBody = document.getElementById("itemsTable");
+            tableBody.innerHTML = ""; // Clear existing rows
+
+            items.forEach((item, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${item.name}</td>
+                    <td>${item.type}</td>
+                    <td>${item.quantity}</td>
+                    <td>${item.price}</td>
+                    <td><button class="add-cart-btn" onclick="addToCart(${index}, '${item.name}', ${item.price})">Add to Cart</button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function addToCart(id, name, price) {
+            let existingItem = cart.find(item => item.id === id);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ id, name, price, quantity: 1 });
+            }
+            updateCart();
+        }
+
+        function updateCart() {
+            const cartItems = document.getElementById("cartItems");
+            const cartTotal = document.getElementById("cartTotal");
+            cartItems.innerHTML = "";
+
+            if (cart.length === 0) {
+                cartItems.innerHTML = "<li>No items in cart</li>";
+                cartTotal.innerText = "0.00";
+                return;
+            }
+
+            let total = 0;
+            cart.forEach((item, index) => {
+                total += item.price * item.quantity;
+                const li = document.createElement("li");
+                li.innerHTML = `${item.name} (x${item.quantity}) - ₹${(item.price * item.quantity).toFixed(2)}
+                    <button class="remove-btn" onclick="removeFromCart(${index})">Remove</button>`;
+                cartItems.appendChild(li);
+            });
+
+            cartTotal.innerText = total.toFixed(2);
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCart();
+        }
+
+        async function checkout() {
+            if (cart.length === 0) {
+                alert("Your cart is empty!");
+                return;
+            }
+            try {
+                const response = await fetch("http://localhost:8000/purchase-items", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ items: cart })
+                });
+
+                if (!response.ok) throw new Error("Purchase failed");
+
+
+                let orderDetails = cart.map(item => `${item.name} (x${item.quantity}) - ₹${(item.price * item.quantity).toFixed(2)}`).join("\n");
+                console.log(orderDetails);
+
+                alert(`Thank you for your purchase!\n\nYour Order:\n${orderDetails}\n\nTotal: $${document.getElementById("cartTotal").innerText}`);
+
+                cart = [];
+                updateCart();
+                fetchItems();
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        window.onload = fetchItems;
+    </script>
+
+</body>
+
+</html>
