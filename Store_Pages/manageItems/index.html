@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Items</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            margin: 20px;
+        }
+
+        table {
+            width: 80%;
+            margin: auto;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #d6eaff;
+        }
+
+        form {
+            width: 50%;
+            margin: 20px auto;
+            padding: 15px;
+            background: white;
+            box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        form button {
+            width: 50%;
+            margin: 20px auto;
+            padding: 8px;
+            background-color: #ddd;
+            box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 6px 12px;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .edit-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .save-btn {
+            background-color: #ffc107;
+            color: black;
+        }
+
+        .del-btn {
+            background-color: #ff0000;
+            color: white;
+        }
+
+        .back {
+            text-align: right;
+            margin-right: 200px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Item Manager</h2>
+    <div class="back"><a href="../menu">Back Home</a></div>
+
+    <form id="addItemForm">
+        <h3>Add Item</h3>
+        <input type="text" id="itemName" placeholder="Item Name" required>
+        <input type="text" id="itemType" placeholder="Item Type" required>
+        <input type="number" id="itemQuantity" placeholder="Quantity" required>
+        <input type="number" id="itemPrice" placeholder="Price (₹)" required>
+        <button type="submit">Add Item</button>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Item Name</th>
+                <th>Item Type</th>
+                <th>Quantity</th>
+                <th>Price (₹)</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="itemsTable">
+            <!-- Items will be inserted dynamically here -->
+        </tbody>
+    </table>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+
+            let form = document.getElementById("addItemForm");
+            if (!form) {
+                console.error("Form not found!");
+                return;
+            }
+
+            let inputs = form.elements;
+
+            // Loop through all inputs and reset their values
+            for (let input of inputs) {
+                if (input.tagName === "INPUT") {
+                    input.value = ""; // Set default value
+                }
+            }
+        });
+
+        document.getElementById("addItemForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+
+            const newItem = {
+                name: document.getElementById("itemName").value.toLowerCase(),
+                type: document.getElementById("itemType").value.charAt(0).toUpperCase() +
+                    document.getElementById("itemType").value.slice(1).toLowerCase(),
+                quantity: parseInt(document.getElementById("itemQuantity").value) || 0,
+                price: parseFloat(document.getElementById("itemPrice").value) || 0
+            };
+
+            try {
+                const response = await fetch("http://localhost:8000/items", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + localStorage.getItem(auth_token) || ""
+                    },
+                    body: JSON.stringify(newItem)
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to add item");
+                }
+
+                document.getElementById("addItemForm").reset();
+                fetchItems(); // Refresh the table
+            } catch (error) {
+                alert(error.message)
+                console.error("Error adding item:", error);
+            }
+        });
+
+
+        async function fetchItems() {
+            try {
+                const response = await fetch("http://localhost:8000/items", {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + localStorage.getItem("auth_token") || ""
+                    },
+                });
+                const items = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(items.error);
+                }
+                displayItems(items);
+            } catch (error) {
+                console.log(error.message);
+                if(error.message =="Invalid or expired token."){
+                    location='/login'
+                }
+                console.error("Error fetching items:", error);
+            }
+        }
+
+        function displayItems(items) {
+            const tableBody = document.getElementById("itemsTable");
+            tableBody.innerHTML = ""; // Clear existing rows
+
+            items.forEach((item, index) => {
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td contenteditable="false">${item.name}</td>
+                    <td contenteditable="false">${item.type}</td>
+                    <td contenteditable="false">${item.quantity}</td>
+                    <td contenteditable="false">${item.price}</td>
+                    <td>
+                        <button class="edit-btn" onclick="editItem(this)">Edit</button>
+                        <button class="del-btn" onclick="deleteItem(${item.item_no})">Delete</button>
+
+                        <button class="edit-btn" onclick="saveItem(this, ${item.item_no})" style="display:none;">Save</button>
+                        <button class="save-btn" id="btn" onclick="fetchItems()" style="display:none;">Cancel</button>
+
+                    </td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+        }
+        async function deleteItem(id) {
+
+            try {
+                const response = await fetch(`http://localhost:8000/delete/${id}`, {
+                    method: "post",
+                    headers: { "Content-Type": "application/json" },
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText);
+                }
+                alert("Item Deleted")
+                fetchItems();
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+
+
+        function editItem(button) {
+            let row = button.parentElement.parentElement;
+            row.style.backgroundColor = "#d7d7d7"
+            let cells = row.querySelectorAll("td[contenteditable]");
+
+            cells.forEach(cell => cell.setAttribute("contenteditable", "true"));
+            console.log(button);
+            console.log(button.nextElementSibling);
+            button.style.display = "none"
+            button.nextElementSibling.style.display = "none"; // Hide Edit button
+            button.nextElementSibling.nextElementSibling.style.display = "inline-block"; // Show Save button
+            button.nextElementSibling.nextElementSibling.nextElementSibling.style.display = "inline-block"
+        }
+
+        async function saveItem(button, id) {
+            let row = button.parentElement.parentElement;
+            let cells = row.querySelectorAll("td[contenteditable]");
+
+            let updatedItem = {
+                id: id,
+                name: cells[0].innerText.toLowerCase(),
+                type: cells[1].innerText.charAt(0).toUpperCase() + cells[1].innerText.slice(1).toLowerCase(),
+                quantity: parseInt(cells[2].innerText),
+                price: parseFloat(cells[3].innerText)
+            };
+
+            try {
+                const response = await fetch(`http://localhost:8000/update/items/${id}`, {
+                    method: "post",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(updatedItem)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText);
+                }
+
+                alert("Item updated successfully!");
+                row.style.backgroundColor = ""
+                cells.forEach(cell => cell.setAttribute("contenteditable", "false"));
+
+                fetchItems()
+
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        window.onload = fetchItems;
+    </script>
+
+</body>
+
+</html>

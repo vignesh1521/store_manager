@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Login</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <h1>Welcome Back</h1>
+            <p>Please login to your account</p>
+            <form id="login_form">
+                <div class="input-field">
+                    <input type="text" id="username" name="mail_id" autocomplete="email" placeholder="Username" required>
+                </div>
+                <div class="input-field">
+                    <input type="password" id="password" name="password" placeholder="Password" required>
+                </div>
+                <div class="msg">
+                    <span id="msg"></span>
+                </div>
+                <button type="submit" class="login-button">Sign In</button>
+                <div class="options">
+                    <a href="">Forgot Password?</a>
+                    <a href="">Create Account</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        let server = new URL(location)
+server.port = 8000
+
+let msg = document.getElementById('msg')
+window.onclick = () => {
+    if (msg.style.display == "block") {
+        msg.style.display = "none";
+    }
+}
+
+let form = document.getElementById("login_form")
+
+form.onsubmit = (event) => {
+    event.preventDefault();
+    let formData = new FormData(form)
+    let jsonData = {};
+    formData.forEach((value, key) => {
+        jsonData[key] = value;
+    });
+    server.pathname = '/api/login';
+    fetch(server, {
+        method: "POST",
+        headers: {
+            "content-type": 'application/json'
+        },
+        body: JSON.stringify(jsonData)
+    }).then((res) => {
+        return res.json()
+    }).then((data) => {
+        if (data.status != 'success') {
+            console.log(data);
+            msg.style.display = "block";
+            msg.innerText = data.msg;
+            return;
+        }
+        localStorage.setItem('auth_token', data.auth_token)
+
+        window.location = '/menu'
+
+
+    })
+}
+    </script>
+</body>
+</html>

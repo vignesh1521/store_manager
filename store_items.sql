@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 05, 2025 at 02:36 AM
+-- Generation Time: Mar 16, 2025 at 01:14 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,72 @@ SET time_zone = "+00:00";
 --
 -- Database: `store`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `customers`
+--
+
+CREATE TABLE `customers` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `mobile` varchar(15) NOT NULL,
+  `locality` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `customers`
+--
+
+INSERT INTO `customers` (`id`, `name`, `mobile`, `locality`, `created_at`) VALUES
+(1, 'Alice Smith', '9876543211', 'Los Angeles', '2025-03-13 15:30:13'),
+(2, 'Bob Johnson', '9876543212', 'Chicago', '2025-03-13 15:30:13'),
+(3, 'Charlie Brown', '9876543213', 'Houston', '2025-03-13 15:30:13'),
+(4, 'David Williams', '9876543214', 'Phoenix', '2025-03-13 15:30:13'),
+(5, 'Emma Davis', '9876543215', 'Philadelphia', '2025-03-13 15:30:13'),
+(6, 'Frank Miller', '9876543216', 'San Antonio', '2025-03-13 15:30:13'),
+(7, 'Grace Wilson', '9876543217', 'San Diego', '2025-03-13 15:30:13'),
+(8, 'Henry Thomas', '9876543218', 'Dallas', '2025-03-13 15:30:13'),
+(9, 'Isla White', '9876543219', 'San Jose', '2025-03-13 15:30:13'),
+(10, 'Jack Martin', '9876543220', 'Austin', '2025-03-13 15:30:13'),
+(19, 'Vignesh', '6369133041', 'Local Area', '2025-03-14 01:51:24'),
+(20, 'Vignesh', '6369133042', 'Local', '2025-03-14 02:24:34');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `purchases`
+--
+
+CREATE TABLE `purchases` (
+  `id` int(11) NOT NULL,
+  `customer_id` int(11) NOT NULL,
+  `item_name` varchar(255) NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `price` decimal(10,2) NOT NULL,
+  `total_price` decimal(10,2) GENERATED ALWAYS AS (`quantity` * `price`) STORED,
+  `purchase_date` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `purchases`
+--
+
+INSERT INTO `purchases` (`id`, `customer_id`, `item_name`, `quantity`, `price`, `purchase_date`) VALUES
+(1, 2, 'sticky notes', 1, 90.00, '2025-03-13 23:58:50'),
+(2, 1, 'sticky notes', 1, 90.00, '2025-03-14 00:52:04'),
+(3, 1, 'glue stick', 1, 50.00, '2025-03-14 00:52:04'),
+(4, 1, 'pens', 1, 30.00, '2025-03-14 00:52:04'),
+(5, 2, 'extension cord', 4, 400.00, '2025-03-14 00:52:28'),
+(6, 2, 'notebook', 1, 80.00, '2025-03-14 00:52:28'),
+(7, 20, 'glue stick', 1, 50.00, '2025-03-14 02:24:52'),
+(8, 19, 'glue stick', 1, 50.00, '2025-03-14 02:28:03'),
+(9, 19, 'glue stick', 1, 50.00, '2025-03-14 02:28:23'),
+(10, 19, 'glue stick', 1, 50.00, '2025-03-14 02:28:40'),
+(11, 19, 'phone charger', 1, 500.00, '2025-03-14 02:29:02'),
+(12, 19, 'extension cord', 1, 400.00, '2025-03-14 02:29:20');
 
 -- --------------------------------------------------------
 
@@ -158,20 +224,51 @@ INSERT INTO `store_items` (`item_no`, `name`, `type`, `quantity`, `price`) VALUE
 (117, 'cotton pads', 'Health & Hygiene', 18, 90),
 (118, 'light bulbs', 'Electronics & Accessories', 30, 100),
 (119, 'AA batteries', 'Electronics & Accessories', 20, 150),
-(120, 'phone charger', 'Electronics & Accessories', 10, 500),
+(120, 'phone charger', 'Electronics & Accessories', 9, 500),
 (121, 'USB cable', 'Electronics & Accessories', 15, 200),
 (122, 'power bank', 'Electronics & Accessories', 8, 1500),
 (123, 'earphones', 'Electronics & Accessories', 10, 800),
-(124, 'extension cord', 'Electronics & Accessories', 12, 400),
-(125, 'notebook', 'Stationery', 30, 80),
-(126, 'pens', 'Stationery', 40, 30),
-(127, 'glue stick', 'Stationery', 15, 50),
-(128, 'sticky notes', 'Stationery', 18, 90),
-(129, 'scissors', 'Stationery', 12, 150);
+(124, 'extension cord', 'Electronics & Accessories', 7, 400),
+(125, 'notebook', 'Stationery', 29, 80),
+(126, 'pens', 'Stationery', 39, 30),
+(127, 'glue stick', 'Stationery', 10, 50);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_details`
+--
+
+CREATE TABLE `user_details` (
+  `user_id` varchar(255) NOT NULL,
+  `mail_id` varchar(255) NOT NULL,
+  `user_token` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `user_details`
+--
+
+INSERT INTO `user_details` (`user_id`, `mail_id`, `user_token`) VALUES
+('dda1a440d0e5463b', 'test@123', 'test123');
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `customers`
+--
+ALTER TABLE `customers`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `mobile` (`mobile`);
+
+--
+-- Indexes for table `purchases`
+--
+ALTER TABLE `purchases`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `customer_id` (`customer_id`);
 
 --
 -- Indexes for table `store_items`
@@ -185,10 +282,32 @@ ALTER TABLE `store_items`
 --
 
 --
+-- AUTO_INCREMENT for table `customers`
+--
+ALTER TABLE `customers`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+
+--
+-- AUTO_INCREMENT for table `purchases`
+--
+ALTER TABLE `purchases`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+--
 -- AUTO_INCREMENT for table `store_items`
 --
 ALTER TABLE `store_items`
   MODIFY `item_no` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `purchases`
+--
+ALTER TABLE `purchases`
+  ADD CONSTRAINT `purchases_ibfk_1` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

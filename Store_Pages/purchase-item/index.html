@@ -42,6 +42,31 @@
             background-color: #d6eaff;
         }
 
+        form {
+            margin: 20px auto;
+            padding: 15px;
+            background: white;
+            box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        form button {
+            width: 50%;
+            margin: 20px auto;
+            padding: 8px;
+            background-color: #ddd;
+            box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
         .back {
             text-align: right;
             margin-right: 50px;
@@ -49,7 +74,10 @@
         }
 
         .cart {
-            width: 80%;
+            width: 35%;
+        }
+
+        .cart_con {
             margin: auto;
             margin-top: 20px;
             background: white;
@@ -113,6 +141,80 @@
             display: flex;
             gap: 10px;
         }
+
+        .customer_con {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .customer_con button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            margin: 5px;
+        }
+
+        .customer_con button:hover {
+            background-color: #0056b3;
+        }
+
+        .customer_con button:active {
+            transform: scale(0.95);
+        }
+
+        .search {
+            margin-top: 20px;
+            background: white;
+            padding: 15px;
+            box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+
+        }
+
+        .search .search_box {
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .search_box button {
+            padding: 5px;
+
+        }
+
+        .search_box input {
+            padding: 5px;
+            border-radius: 5px;
+            width: 90%;
+            margin: auto;
+            border: 1px solid #a2a2a2;
+
+        }
+
+        .search_res p {
+            text-align: left;
+            margin: 5px;
+
+        }
+
+        .search_res div {
+            background-color: #efefef;
+            padding: 5px;
+            margin-top: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+
+        .search_res .active {
+            background-color: #d6eaff;
+        }
     </style>
 </head>
 
@@ -121,15 +223,39 @@
     <h2>Store Items</h2>
     <div class="back"><a href="../menu">Back Home</a></div>
     <div class="con">
-
-        <!-- Cart Section -->
         <div class="cart">
-            <h2>Your Cart</h2>
-            <ul class="cart-items" id="cartItems">
-                <li>No items in cart</li>
-            </ul>
-            <h3>Total: ₹<span id="cartTotal">0.00</span></h3>
-            <button class="checkout-btn" onclick="checkout()">Checkout</button>
+            <div class="cart_con">
+                <h2>Your Cart</h2>
+                <ul class="cart-items" id="cartItems">
+                    <li>No items in cart</li>
+                </ul>
+                <h3>Total: ₹<span id="cartTotal">0.00</span></h3>
+                <button class="checkout-btn" onclick="checkout()">Checkout</button>
+            </div>
+            <div class="customer_con">
+                <button>Search customer</button>
+                <button>Add Customer</button>
+
+                <div class="search" id="search">
+                    <div class="search_box">
+                        <input type="text" id="search_input" placeholder="Search.....">
+                        <button onclick=search()>Search</button>
+                    </div>
+                    <div class="search_res" id="resultsDiv">
+
+                    </div>
+                </div>
+                <div class="add_cus" id="add_cus">
+
+                    <form id="customerForm">
+                        <h3>Add Customer</h3>
+                        <input type="text" id="customerName" placeholder="Name" required>
+                        <input type="number" id="customerPhone" placeholder="Phone" required>
+                        <input type="text" id="customerLocality" placeholder="Locality" required>
+                        <button type="submit">Add Customer</button>
+                    </form>
+                </div>
+            </div>
         </div>
         <table>
             <thead>
@@ -150,17 +276,30 @@
 
     </div>
     <script>
+        document.getElementById("search_input").value = ""
         let cart = [];
+        let customer = []
+
 
         async function fetchItems() {
             try {
-                const response = await fetch("http://localhost:8000/items");
-                if (!response.ok) {
-                    throw new Error("Failed to fetch items");
-                }
+                const response = await fetch("http://localhost:8000/items", {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + localStorage.getItem("auth_token") || ""
+                    },
+                });
                 const items = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(items.error);
+                }
                 displayItems(items);
             } catch (error) {
+                console.log(error.message);
+                if (error.message == "Invalid or expired token.") {
+                    location = '/login'
+                }
                 console.error("Error fetching items:", error);
             }
         }
@@ -222,6 +361,10 @@
         }
 
         async function checkout() {
+            if (customer.length === 0) {
+                alert("Please select customer!")
+                return;
+            }
             if (cart.length === 0) {
                 alert("Your cart is empty!");
                 return;
@@ -230,7 +373,7 @@
                 const response = await fetch("http://localhost:8000/purchase-items", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ items: cart })
+                    body: JSON.stringify({ customer_id: customer[0].id, items: cart })
                 });
 
                 if (!response.ok) throw new Error("Purchase failed");
@@ -239,15 +382,129 @@
                 let orderDetails = cart.map(item => `${item.name} (x${item.quantity}) - ₹${(item.price * item.quantity).toFixed(2)}`).join("\n");
                 console.log(orderDetails);
 
-                alert(`Thank you for your purchase!\n\nYour Order:\n${orderDetails}\n\nTotal: $${document.getElementById("cartTotal").innerText}`);
+                alert(`Thank you, ${customer[0].name}, for your purchase!\n\nYour Order:\n${orderDetails}\n\nTotal: ₹${document.getElementById("cartTotal").innerText}`);
 
                 cart = [];
                 updateCart();
                 fetchItems();
             } catch (error) {
+                alert(error.message)
                 console.log(error);
             }
         }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const searchDiv = document.getElementById("search");
+            const addCusDiv = document.getElementById("add_cus");
+            const buttons = document.querySelectorAll(".customer_con button");
+
+            buttons[0].addEventListener("click", function () {
+                if (searchDiv.style.display === "none") {
+                    searchDiv.style.display = "block";
+                    addCusDiv.style.display = "none"; // Close add customer section
+                }
+            });
+
+            buttons[1].addEventListener("click", function () {
+                if (addCusDiv.style.display === "none") {
+                    addCusDiv.style.display = "block";
+                    searchDiv.style.display = "none"; // Close search section
+                }
+            });
+
+            addCusDiv.style.display = "none";
+
+        });
+        function search() {
+            let searchInput = document.getElementById("search_input")
+            const searchTerm = searchInput.value.trim();
+            const resultsDiv = document.getElementById("resultsDiv");
+            if (!searchTerm) {
+                resultsDiv.innerHTML = "<p>Please enter a search term.</p>";
+                return;
+            }
+
+            fetch(`http://localhost:8000/search?q=${encodeURIComponent(searchTerm)}`)
+                .then(response => response.json())
+                .then(data => {
+                    resultsDiv.innerHTML = ""; // Clear previous results
+                    if (data.length === 0) {
+                        resultsDiv.innerHTML = "<p>No customers found.</p>";
+                        return;
+                    }
+
+                    // Display results
+                    data.forEach(customer => {
+                        const item = document.createElement("div");
+                        let data = JSON.stringify(customer)
+                        item.setAttribute("id", customer.id)
+                        item.setAttribute("data", data)
+
+                        item.innerHTML = `<p>Name: ${customer.name}</p> <p>Mobile: ${customer.mobile}</p> <p> Locality: ${customer.locality}</p>`;
+                        resultsDiv.appendChild(item);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error fetching data:", error);
+                    resultsDiv.innerHTML = "<p>Error fetching data.</p>";
+                });
+
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const resultsDiv = document.getElementById("resultsDiv");
+
+            resultsDiv.addEventListener("click", function (event) {
+                const clickedElement = event.target.closest("div");
+
+                if (clickedElement && clickedElement.id !== "resultsDiv") {
+                    document.querySelectorAll("#resultsDiv > div").forEach(div => {
+                        div.classList.remove("active");
+                    });
+                    customer = []
+                    let data = JSON.parse(clickedElement.getAttribute("data"));
+                    customer.push(data)
+                    clickedElement.classList.add("active");
+                }
+            });
+        });
+
+
+        document.getElementById("customerForm").reset();
+        function capitalizeWords(str) {
+            return str.replace(/\b\w/g, (char) => char.toUpperCase());
+        }
+        document.getElementById("customerForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const name = capitalizeWords(document.getElementById("customerName").value.trim());
+            const mobile = document.getElementById("customerPhone").value.trim();
+            const locality = capitalizeWords(document.getElementById("customerLocality").value.trim());
+
+            // Validate mobile number length
+            if (mobile.length !== 10 || isNaN(mobile)) {
+                alert("Invalid mobile number");
+                return;
+            }
+
+            const newCustomer = { name, mobile, locality };
+
+            try {
+                const response = await fetch("http://localhost:8000/customers", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(newCustomer)
+                });
+
+                let res = await response.json();
+                if (!response.ok) throw new Error(res.error);
+
+                document.getElementById("customerForm").reset();
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+
         window.onload = fetchItems;
     </script>
 

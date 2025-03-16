@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customers Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            margin: 20px;
+        }
+
+        table {
+            width: 80%;
+            margin: auto;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #d6eaff;
+        }
+
+        form {
+            width: 50%;
+            margin: 20px auto;
+            padding: 15px;
+            background: white;
+            box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        form button {
+            width: 50%;
+            margin: 20px auto;
+            padding: 8px;
+            background-color: #ddd;
+            box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        button {
+            padding: 6px 12px;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .edit-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .save-btn {
+            background-color: #ffc107;
+            color: black;
+        }
+
+        .del-btn {
+            background-color: #ff0000;
+            color: white;
+        }
+
+        .back {
+            text-align: right;
+            margin-right: 200px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Manage Customers</h2>
+    <div class="back"><a href="../menu">Back Home</a></div>
+
+    <form id="customerForm">
+        <h3>Add Customer</h3>
+        <input type="text" id="customerName" placeholder="Name" required>
+        <input type="number" id="customerPhone" placeholder="Phone" required>
+        <input type="text" id="customerLocality" placeholder="Locality" required>
+        <button type="submit">Add Customer</button>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Locality</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="customersTable">
+
+        </tbody>
+    </table>
+
+    <script>
+        document.getElementById("customerForm").reset();
+        function capitalizeWords(str) {
+            return str.replace(/\b\w/g, (char) => char.toUpperCase());
+        }
+        document.getElementById("customerForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const name = capitalizeWords(document.getElementById("customerName").value.trim());
+            const mobile = document.getElementById("customerPhone").value.trim();
+            const locality = capitalizeWords(document.getElementById("customerLocality").value.trim());
+
+            // Validate mobile number length
+            if (mobile.length !== 10 || isNaN(mobile)) {
+                alert("Invalid mobile number");
+                return;
+            }
+
+            const newCustomer = { name, mobile, locality };
+
+            try {
+                const response = await fetch("http://localhost:8000/customers", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(newCustomer)
+                });
+
+                let res = await response.json();
+                if (!response.ok) throw new Error(res.error);
+
+                document.getElementById("customerForm").reset();
+                fetchCustomers();
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+
+        async function fetchCustomers() {
+            try {
+                const response = await fetch("http://localhost:8000/customers", {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + localStorage.getItem("auth_token") || ""
+                    },
+                });
+                const customers = await response.json();
+
+                if (!response.ok) throw new Error(customers.error);
+                displayCustomers(customers);
+            } catch (error) {
+                if (error.message == "Invalid or expired token.") { 
+                    location="/login"
+                }
+               
+                console.error(error);
+            }
+        }
+
+        function displayCustomers(customers) {
+            const tableBody = document.getElementById("customersTable");
+            tableBody.innerHTML = "";
+            customers.reverse().forEach((customer, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td contenteditable="false">${customer.name}</td>
+                    <td contenteditable="false">${customer.mobile}</td>
+                    <td contenteditable="false">${customer.locality}</td>
+                    <td>
+                        <button class="edit-btn" onclick="editCustomer(this)">Edit</button>
+                        <button class="del-btn" onclick="deleteCustomer(${customer.id})">Delete</button>
+                        <button class="save-btn" onclick="saveCustomer(this, ${customer.id})" style="display:none;">Save</button>
+                        <button class="edit-btn" style="display:none;" onclick="fetchCustomers()">Cancel</button>
+
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function editCustomer(button) {
+            let row = button.parentElement.parentElement;
+            let cells = row.querySelectorAll("td[contenteditable]");
+            cells.forEach(cell => cell.setAttribute("contenteditable", "true"));
+            button.style.display = "none";
+            button.nextElementSibling.nextElementSibling.style.display = "inline-block";
+
+            button.nextElementSibling.style.display = "none";
+            button.nextElementSibling.nextElementSibling.nextElementSibling.style.display = "inline-block";
+        }
+
+        async function saveCustomer(button, id) {
+            let row = button.parentElement.parentElement;
+            let cells = row.querySelectorAll("td[contenteditable]");
+
+            let updatedCustomer = {
+                name: capitalizeWords(cells[0].innerText.trim()),
+                phone: cells[1].innerText.trim(),
+                locality: capitalizeWords(cells[2].innerText.trim())
+            };
+
+            // Validate mobile number length
+            if (updatedCustomer.phone.length !== 10 || isNaN(updatedCustomer.phone)) {
+                alert("Invalid mobile number");
+                return;
+            }
+
+            console.log(updatedCustomer);
+
+            try {
+                const response = await fetch(`http://localhost:8000/update/customers/${id}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(updatedCustomer)
+                });
+
+                if (!response.ok) throw new Error("Failed to update customer");
+                fetchCustomers();
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+        async function deleteCustomer(id) {
+            try {
+                const response = await fetch(`http://localhost:8000/delete/customer/${id}`, { method: "POST" });
+                if (!response.ok) throw new Error("Failed to delete customer");
+                alert("Customer Deleted")
+                fetchCustomers();
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        window.onload = fetchCustomers;
+    </script>
+</body>
+
+</html>
